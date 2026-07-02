@@ -1,9 +1,23 @@
+using Microsoft.EntityFrameworkCore;
+using SecureMailAnalyzer.Api;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Veritabani baglantisini servislere ekliyoruz
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
+
+// Uygulama baslarken veritabani ve tablolar yoksa otomatik olustur
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -13,12 +27,40 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/analyze", (AnalyzeRequest request) =>
+app.MapPost("/analyze", async (AnalyzeRequest request, AppDbContext db) =>
 {
+    // 1. Analizi yap
     var result = ContentAnalyzer.Analyze(request.Content, request.Url);
+
+    // 2. Sonucu veritabanina kaydet
+    var record = new AnalysisRecord
+    {
+        Content = request.Content,
+        Url = request.Url,
+        RiskLevel = result.RiskLevel,
+        Score = result.Score,
+        Signals = string.Join(" | ", result.Signals), // listeyi tek metne ceviriyoruz
+        CreatedAt = DateTime.UtcNow
+    };
+    db.Analyses.Add(record);
+    await db.SaveChangesAsync();
+
+    // 3. Sonucu kullaniciya don
     return Results.Ok(result);
 })
 .WithName("AnalyzeContent");
+
+// --- Gecmis analizleri listeler (en yeni en ustte) ---
+app.MapGet("/history", async (AppDbContext db) =>
+{
+    var records = await db.Analyses
+        .OrderByDescending(a => a.CreatedAt)  // en yeni kayit en ustte
+        .Take(50)                             // son 50 kaydi getir
+        .ToListAsync();
+
+    return Results.Ok(records);
+})
+.WithName("GetHistory");
 
 app.Run();
 
@@ -32,7 +74,6 @@ static class ContentAnalyzer
         int score = 0;
         var signals = new List<string>();
 
-        // --- METIN ANALIZI ---
         if (!string.IsNullOrWhiteSpace(content))
         {
             var text = content.ToLowerInvariant();
@@ -73,7 +114,6 @@ static class ContentAnalyzer
             }
         }
 
-        // --- LINK ANALIZI ---
         if (!string.IsNullOrWhiteSpace(url))
         {
             var (linkScore, linkSignals) = AnalyzeUrl(url);
@@ -81,7 +121,6 @@ static class ContentAnalyzer
             signals.AddRange(linkSignals);
         }
 
-        // Puani risk seviyesine cevir
         string riskLevel = score >= 60 ? "High" : score >= 30 ? "Medium" : "Low";
 
         if (signals.Count == 0)
@@ -90,13 +129,11 @@ static class ContentAnalyzer
         return new AnalyzeResponse(riskLevel, score, signals);
     }
 
-    // --- Link kontrolleri ayri bir metotta ---
     static (int score, List<string> signals) AnalyzeUrl(string url)
     {
         int score = 0;
         var signals = new List<string>();
 
-        // URL'yi ayristirmayi dene; gecersizse uyar
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
         {
             signals.Add("Link gecerli bir adres olarak ayristirilamadi.");
@@ -106,28 +143,24 @@ static class ContentAnalyzer
 
         var host = uri.Host.ToLowerInvariant();
 
-        // KURAL 1: HTTPS kullaniyor mu?
         if (uri.Scheme != "https")
         {
             score += 20;
             signals.Add("Link HTTPS kullanmiyor (guvensiz baglanti).");
         }
 
-        // KURAL 2: Host bir IP adresi mi? (meşru siteler alan adi kullanir)
         if (System.Net.IPAddress.TryParse(host, out _))
         {
             score += 30;
             signals.Add("Link alan adi yerine dogrudan IP adresi kullaniyor.");
         }
 
-        // KURAL 3: Domain asiri uzun mu?
         if (host.Length > 30)
         {
             score += 15;
             signals.Add("Alan adi asiri uzun (karmasik/supheli olabilir).");
         }
 
-        // KURAL 4: Domain'de cok fazla tire veya rakam var mi?
         int digitCount = host.Count(char.IsDigit);
         int dashCount = host.Count(c => c == '-');
         if (digitCount >= 4 || dashCount >= 3)
@@ -136,7 +169,6 @@ static class ContentAnalyzer
             signals.Add("Alan adinda fazla sayida rakam veya tire var.");
         }
 
-        // KURAL 5: Link kisaltici mi?
         string[] shorteners = { "bit.ly", "tinyurl.com", "goo.gl", "t.co", "ow.ly", "is.gd", "buff.ly", "cutt.ly" };
         if (shorteners.Any(s => host == s || host.EndsWith("." + s)))
         {
@@ -144,8 +176,6 @@ static class ContentAnalyzer
             signals.Add("Link kisaltici kullanilmis (gercek hedef gizlenmis olabilir).");
         }
 
-        // KURAL 6: Alt-alan derinligi supheli mi? (marka taklidi: garanti.com.sahte.xyz)
-        // Nokta sayisi cok fazlaysa, bir markanin arkasina sahte domain eklenmis olabilir
         int dotCount = host.Count(c => c == '.');
         if (dotCount >= 3)
         {
@@ -160,6 +190,5 @@ static class ContentAnalyzer
 
 // =================== VERI MODELLERI ===================
 
-// Content = mail metni (opsiyonel), Url = analiz edilecek link (opsiyonel)
 record AnalyzeRequest(string? Content, string? Url);
 record AnalyzeResponse(string RiskLevel, int Score, List<string> Signals);
