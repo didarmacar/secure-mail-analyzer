@@ -1,0 +1,23 @@
+﻿# .NET
+bin/
+obj/
+*.user
+appsettings.Development.json
+
+# React / Node
+node_modules/
+frontend/build/
+frontend/dist/
+
+# Ortam değişkenleri (şifreler, API anahtarları buraya!)
+.env
+*.env
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# İşletim sistemi
+.DS_Store
+Thumbs.db
