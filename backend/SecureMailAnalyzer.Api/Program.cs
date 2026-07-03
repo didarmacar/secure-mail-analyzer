@@ -62,6 +62,31 @@ app.MapGet("/history", async (AppDbContext db) =>
 })
 .WithName("GetHistory");
 
+// --- Admin istatistikleri: toplam sayi ve risk dagilimi ---
+app.MapGet("/stats", async (AppDbContext db) =>
+{
+    var total = await db.Analyses.CountAsync();
+
+    // Risk seviyelerine gore grupla ve say
+    var byRiskLevel = await db.Analyses
+        .GroupBy(a => a.RiskLevel)
+        .Select(g => new { RiskLevel = g.Key, Count = g.Count() })
+        .ToListAsync();
+
+    // En yuksek riskli analiz sayisi (High)
+    var highRiskCount = await db.Analyses.CountAsync(a => a.RiskLevel == "High");
+
+    var stats = new
+    {
+        TotalAnalyses = total,
+        HighRiskCount = highRiskCount,
+        ByRiskLevel = byRiskLevel
+    };
+
+    return Results.Ok(stats);
+})
+.WithName("GetStats");
+
 app.Run();
 
 
