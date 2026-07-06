@@ -56,18 +56,20 @@ function App() {
 
       {/* Sonuc geldiyse goster */}
       {result && (
-        <div className="result">
-          <h2>Sonuc</h2>
-          <p><strong>Risk Seviyesi:</strong> {result.riskLevel}</p>
-          <p><strong>Puan:</strong> {result.score}</p>
-          <strong>Tespit edilen sinyaller:</strong>
-          <ul>
-            {result.signals.map((signal, index) => (
-              <li key={index}>{signal}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+  <div className="result">
+    <h2>Sonuc</h2>
+    <div className={`risk-badge risk-${result.riskLevel.toLowerCase()}`}>
+      Risk Seviyesi: {result.riskLevel}
+    </div>
+    <p><strong>Puan:</strong> {result.score}</p>
+    <strong>Tespit edilen sinyaller:</strong>
+    <ul>
+      {result.signals.map((signal, index) => (
+        <li key={index}>{signal}</li>
+      ))}
+    </ul>
+  </div>
+)}
     </div>
   );
 }
