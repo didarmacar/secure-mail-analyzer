@@ -120,3 +120,31 @@ button:disabled {
 .risk-high {
   background-color: #dc2626;   /* kirmizi */
 }
+
+/* Sekmeler */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.tab {
+  width: auto;
+  margin-top: 0;
+  padding: 8px 20px;
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.tab.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* Admin giris alani */
+.admin-login {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}

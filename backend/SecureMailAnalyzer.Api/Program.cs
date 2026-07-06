@@ -76,18 +76,26 @@ app.MapGet("/history", async (AppDbContext db) =>
 })
 .WithName("GetHistory");
 
-// --- Admin istatistikleri: toplam sayi ve risk dagilimi ---
-app.MapGet("/stats", async (AppDbContext db) =>
+// --- Admin istatistikleri: SADECE gecerli token ile erisilebilir ---
+app.MapGet("/stats", async (HttpContext http, AppDbContext db, IConfiguration config) =>
 {
+    // Istek basligindaki token'i al ve dogrula
+    var sentToken = http.Request.Headers["X-Admin-Token"].ToString();
+    var validToken = config["AdminSettings:Token"];
+
+    if (string.IsNullOrEmpty(sentToken) || sentToken != validToken)
+    {
+        // Token yok veya yanlis: erisim reddedildi
+        return Results.Unauthorized();
+    }
+
     var total = await db.Analyses.CountAsync();
 
-    // Risk seviyelerine gore grupla ve say
     var byRiskLevel = await db.Analyses
         .GroupBy(a => a.RiskLevel)
         .Select(g => new { RiskLevel = g.Key, Count = g.Count() })
         .ToListAsync();
 
-    // En yuksek riskli analiz sayisi (High)
     var highRiskCount = await db.Analyses.CountAsync(a => a.RiskLevel == "High");
 
     var stats = new
@@ -100,6 +108,23 @@ app.MapGet("/stats", async (AppDbContext db) =>
     return Results.Ok(stats);
 })
 .WithName("GetStats");
+
+// --- Admin girisi: sifre dogruysa token doner ---
+app.MapPost("/admin/login", (AdminLoginRequest request, IConfiguration config) =>
+{
+    var validPassword = config["AdminSettings:Password"];
+    var token = config["AdminSettings:Token"];
+
+    if (request.Password == validPassword)
+    {
+        // Sifre dogru: token'i geri ver
+        return Results.Ok(new { Token = token });
+    }
+
+    // Sifre yanlis
+    return Results.Unauthorized();
+})
+.WithName("AdminLogin");
 
 app.Run();
 
@@ -231,3 +256,4 @@ static class ContentAnalyzer
 
 record AnalyzeRequest(string? Content, string? Url);
 record AnalyzeResponse(string RiskLevel, int Score, List<string> Signals);
+record AdminLoginRequest(string Password);
