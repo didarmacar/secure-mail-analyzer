@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
-const API = "http://localhost:5159";
+const API = "http://localhost:30059";
 
 function App() {
   const [page, setPage] = useState("analyze");
