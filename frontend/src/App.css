@@ -1,150 +1,435 @@
-/* Genel sayfa ayari */
-body {
+:root {
+  --navy: #1a2b4a;
+  --bg: #eef2f8;
+  --bg-hero: #e4ebf5;
+  --white: #ffffff;
+  --border: #d5deec;
+  --text: #1a2b4a;
+  --text-muted: #5c6b85;
+  --green: #34c77b;
+  --green-hover: #2bb069;
+  --input-bg: #f7f9fc;
+}
+
+* {
+  box-sizing: border-box;
   margin: 0;
-  background-color: #f4f6f8;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
   font-family: 'Segoe UI', Tahoma, sans-serif;
-  color: #1a1a1a;
+  color: var(--text);
 }
 
-/* Ana kapsayici: ortalanmis, makul genislikte bir kart */
-.container {
-  max-width: 640px;
-  margin: 40px auto;
-  padding: 32px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+/* ===== NAVBAR ===== */
+.navbar {
+  height: 80px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 220px;
 }
 
-.container h1 {
-  text-align: center;
-  margin-bottom: 4px;
-  font-size: 28px;
+.brand {
+  font-size: 36px;
+  font-family: 'Courier New', monospace;    /* teknik/kod havası */
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: -0.5px;
 }
 
-.container > p {
-  text-align: center;
-  color: #666;
-  margin-top: 0;
+.nav-links {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  padding: 8px 18px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+   font-family: 'Courier New', monospace;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--navy);
+  background: var(--bg);
+}
+
+.nav-link.active {
+  color: var(--green);
+}
+
+/* ===== HERO ===== */
+.hero {
+  background: var(--bg-hero);
+  padding: 100px 40px 120px;
+}
+
+.hero-inner {
+  display: flex;
+  gap: 80px;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-text {
+  flex: 1;
+  padding-top: 20px;
+}
+
+.hero-text h1 {
+  font-size: 60px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--navy);
   margin-bottom: 28px;
+  letter-spacing: -1px;
+  font-family: 'Courier New', monospace;
+
 }
 
-/* Etiketler */
+.hero-text p {
+  font-size: 19px;
+  line-height: 1.8;
+  color: var(--text-muted);
+  max-width: 480px;
+}
+
+.hero-lead {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 18px;
+  max-width: 480px;
+}
+
+.hero-card {
+  flex: 1;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 12px 40px rgba(26, 43, 74, 0.1);
+}
+
+.hero-card textarea {
+  min-height: 180px;
+}
+
+/* ===== FORM ===== */
 label {
   display: block;
-  font-weight: 600;
-  margin-bottom: 6px;
-  margin-top: 16px;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--navy);
 }
 
-/* Metin ve link kutulari */
 textarea,
-input[type="text"] {
+input[type="text"],
+input[type="password"] {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  padding: 12px 14px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
   font-size: 14px;
   font-family: inherit;
-  box-sizing: border-box;
+  color: var(--text);
+  margin-bottom: 18px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(52, 199, 123, 0.15);
 }
 
 textarea {
   resize: vertical;
 }
 
-/* Analiz butonu */
-button {
-  width: 100%;
-  margin-top: 20px;
-  padding: 12px;
-  background-color: #2563eb;
+textarea::placeholder,
+input::placeholder {
+  color: #9aa8bf;
+}
+
+/* ===== BUTON ===== */
+.btn {
+  background: var(--green);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 10px;
+  padding: 13px 28px;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
-button:hover:not(:disabled) {
-  background-color: #1d4ed8;
+.btn:hover:not(:disabled) {
+  background: var(--green-hover);
 }
 
-button:disabled {
-  background-color: #9ca3af;
+.btn:disabled {
+  background: #a8c9b6;
   cursor: not-allowed;
 }
 
-/* Sonuc kutusu */
-.result {
-  margin-top: 28px;
-  padding: 20px;
-  border-radius: 8px;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+.hero-card .btn {
+  width: 100%;
 }
 
-.result h2 {
-  margin-top: 0;
+/* ===== SONUC ===== */
+.result {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 
 .result ul {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
   padding-left: 20px;
 }
 
 .result li {
   margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
-/* Risk seviyesi rozeti */
+/* ===== RISK ROZETLERI ===== */
 .risk-badge {
   display: inline-block;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: 20px;
   font-weight: 700;
-  margin-bottom: 12px;
+  font-size: 14px;
   color: white;
 }
 
 .risk-low {
-  background-color: #16a34a;   /* yesil */
+  background: #16a34a;
 }
 
 .risk-medium {
-  background-color: #f59e0b;   /* turuncu */
+  background: #f59e0b;
 }
 
 .risk-high {
-  background-color: #dc2626;   /* kirmizi */
+  background: #dc2626;
 }
 
-/* Sekmeler */
-.tabs {
+/* ===== SECTIONS ===== */
+.section {
+  padding: 100px 40px;
+  text-align: center;
+}
+
+.section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section.light {
+  background: var(--white);
+}
+
+.section h2 {
+  font-size: 38px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 14px;
+  letter-spacing: -0.5px;
+}
+
+.section-sub {
+  color: var(--text-muted);
+  font-size: 17px;
+  margin-bottom: 56px;
+}
+
+/* ===== STEPS ===== */
+.steps {
   display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.step-card {
+  flex: 1;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 44px 36px;
+  text-align: left;
+}
+
+.step-num {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--bg-hero);
+  color: var(--green);
+  font-size: 24px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  margin-bottom: 24px;
 }
 
-.tab {
-  width: auto;
-  margin-top: 0;
-  padding: 8px 20px;
-  background-color: #e5e7eb;
-  color: #374151;
+.step-card h3 {
+  font-size: 22px;
+  color: var(--navy);
+  margin-bottom: 14px;
 }
 
-.tab.active {
-  background-color: #2563eb;
-  color: white;
+.step-card p {
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.7;
 }
 
-/* Admin giris alani */
-.admin-login {
-  margin-top: 32px;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
+/* ===== INFO CARDS ===== */
+.info-cards {
+  display: flex;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.info-card {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: left;
+}
+
+.info-card h3 {
+  font-size: 22px;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+
+.info-card p {
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ===== INNER PAGES (Gecmis / Admin) ===== */
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 48px 40px;
+}
+
+.page h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.login-card {
+  max-width: 400px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-top: 24px;
+}
+
+.login-card .btn {
+  width: 100%;
+}
+
+/* ===== RECORD (gecmis/admin kutulari) ===== */
+.record {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 18px;
+}
+
+.record h2 {
+  font-size: 18px;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.record p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.record ul {
+  padding-left: 20px;
+}
+
+.record li {
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.signals-text {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.timestamp {
+  color: #9aa8bf;
+  font-size: 12px;
+}
+
+.empty {
+  color: var(--text-muted);
+  margin-top: 20px;
+}
+
+/* ===== STAT KARTLARI ===== */
+.stat-grid {
+  display: flex;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.stat-card {
+  flex: 1;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--green);
 }
